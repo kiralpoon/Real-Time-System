@@ -2,7 +2,7 @@
 
 **make sure your Linux machine install the library we need for this project**
 
-'''
+''' bash
 apt-get install avr-libc gcc-avr gdb-avr avrdude
 '''
 
