@@ -3,13 +3,12 @@
 **make sure your Linux machine install the library we need for this project**
 
 	bash
-apt-get install avr-libc gcc-avr gdb-avr avrdude
-	
+	apt-get install avr-libc gcc-avr gdb-avr avrdude
+
 
 **to check is it flash ready**
 
-	
-avrdude -p m169 -c butterfly -P /dev/ttyUSB0 -v
+	avrdude -p m169 -c butterfly -P /dev/ttyUSB0 -v
 	
 
 **flashing Helloworld to the board**
@@ -18,7 +17,7 @@ make sure to uncomment the code and change the port parameter to ttyusb0
 
 **compile and run**
 
-'''
+'''c
 make clean
 make program
 '''
