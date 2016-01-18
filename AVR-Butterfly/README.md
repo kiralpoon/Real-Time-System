@@ -17,7 +17,7 @@
 
 * Make sure to uncomment the code and change the port parameter to ttyusb0
 
-**compile and run**
+**Compile and run**
 
 
 	make clean
@@ -27,7 +27,7 @@
 * Move the joystick up and you should able to see HelloWorld
 * If permission is needed just add sudo
 
-**debug**
+**Debug**
 
 	dmesg //can be used to see what your compter connect the device
 	lsusb //or this 
@@ -36,7 +36,7 @@
  * if the battery is nearly dead, the microcontroller will not be able to either Reading or erasing chip properly.
  * you can conveniently connect on the ISP GND and RST to reset the running program which makes it ready to program, instead of taking out thebattery or press the yellow button(if there is) to give the same effect .
 
-**current board status**
+**Current board status**
  * 11 boards with microphones are working, and 6 with battery. All are flashed to “Hello World”
  * 7 boards without microphones are working and all have battery.
  * Total of 18 boards are available.
