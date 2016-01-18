@@ -12,6 +12,7 @@
 	
 
 **flashing Helloworld to the board**
+
 download helloworld from jacky webpage
 make sure to uncomment the code and change the port parameter to ttyusb0
 
