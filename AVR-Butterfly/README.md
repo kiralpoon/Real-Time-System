@@ -17,10 +17,10 @@ make sure to uncomment the code and change the port parameter to ttyusb0
 
 **compile and run**
 
-'''c
-make clean
-make program
-'''
+
+	make clean
+	make program
+
 
 move the joystick up and you should able to see HelloWorld
 if permission is needed just add sudo
@@ -28,8 +28,8 @@ if permission is needed just add sudo
 **debug**
 
 '''
-dmesg //can be used to see what your compter connect the device
-lsusb //or this
+	dmesg //can be used to see what your compter connect the device
+	lsusb //or this
 ''' 
 
 **Problems and Tips**
