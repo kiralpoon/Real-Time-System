@@ -1,26 +1,33 @@
 #Instruction of testing AVR-butterfly
 
 **make sure your Linux machine install the library we need for this project**
+
 '''
 apt-get install avr-libc gcc-avr gdb-avr avrdude
 '''
+
 **to check is it flash ready**
+
 '''
 avrdude -p m169 -c butterfly -P /dev/ttyUSB0 -v
 '''
+
 **flashing Helloworld to the board**
 download helloworld from jacky webpage
 make sure to uncomment the code and change the port parameter to ttyusb0
 
 **compile and run**
+
 '''
 make clean
 make program
 '''
+
 move the joystick up and you should able to see HelloWorld
 if permission is needed just add sudo
 
 **debug**
+
 '''
 dmesg //can be used to see what your compter connect the device
 lsusb //or this
