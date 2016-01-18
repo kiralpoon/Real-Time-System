@@ -27,10 +27,10 @@ if permission is needed just add sudo
 
 **debug**
 
-'''
+"""
 	dmesg //can be used to see what your compter connect the device
 	lsusb //or this
-''' 
+""" 
 
 **Problems and Tips**
  * if the battery is nearly dead, the microcontroller will not be able to either Reading or erasing chip properly.
