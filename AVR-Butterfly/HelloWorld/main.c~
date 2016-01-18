@@ -1,0 +1,34 @@
+#include <avr/io.h>
+#include <avr/iom169.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <avr/sleep.h>
+#include <inttypes.h>
+
+#include "main.h"
+#include "lcd_functions.h"
+#include "lcd_driver.h"
+
+int main( void );
+
+int 
+main( void )
+{
+    LCD_Init(); // initialize the LCD (see lcd_driver.h)
+    
+    sei();      // enable interrupts (avr/interrupt.h)
+    
+    LCD_puts("Hello World", TRUE);   // display some text (see lcd_functions.h)
+    
+    // main should never, EVER exit
+    for(;;)
+    {
+        // _delay_ms does a busy loop for the given time
+        //_delay_ms(100);
+        
+        // we don't want to do anything, so just do a no-op
+        asm volatile("nop"::); 
+    }
+    
+    return 0;
+}

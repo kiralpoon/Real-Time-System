@@ -1,0 +1,91 @@
+   1               		.file	"main.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   9               		.text
+  10               	.Ltext0:
+ 107               		.section	.rodata.str1.1,"aMS",@progbits,1
+ 108               	.LC0:
+ 109 0000 4865 6C6C 		.string	"Hello World"
+ 109      6F20 576F 
+ 109      726C 6400 
+ 110               		.section	.text.startup,"ax",@progbits
+ 112               	.global	main
+ 114               	main:
+ 115               		.stabd	46,0,0
+   1:main.c        **** #include <avr/io.h>
+   2:main.c        **** #include <avr/iom169.h>
+   3:main.c        **** #include <avr/interrupt.h>
+   4:main.c        **** #include <avr/pgmspace.h>
+   5:main.c        **** #include <avr/sleep.h>
+   6:main.c        **** #include <inttypes.h>
+   7:main.c        **** 
+   8:main.c        **** #include "main.h"
+   9:main.c        **** #include "lcd_functions.h"
+  10:main.c        **** #include "lcd_driver.h"
+  11:main.c        **** 
+  12:main.c        **** int 
+  13:main.c        **** main( void )
+  14:main.c        **** {
+ 117               	.LM0:
+ 118               	.LFBB1:
+ 119               	/* prologue: function */
+ 120               	/* frame size = 0 */
+ 121               	/* stack size = 0 */
+ 122               	.L__stack_usage = 0
+  15:main.c        ****     LCD_Init(); // initialize the LCD (see lcd_driver.h)
+ 124               	.LM1:
+ 125 0000 0E94 0000 		call LCD_Init
+  16:main.c        ****     
+  17:main.c        ****     sei();      // enable interrupts (avr/interrupt.h)
+ 127               	.LM2:
+ 128               	/* #APP */
+ 129               	 ;  17 "main.c" 1
+ 130 0004 7894      		sei
+ 131               	 ;  0 "" 2
+  18:main.c        ****     
+  19:main.c        ****     LCD_puts("Hello World", TRUE);   // display some text (see lcd_functions.h)
+ 133               	.LM3:
+ 134               	/* #NOAPP */
+ 135 0006 61E0      		ldi r22,lo8(1)
+ 136 0008 80E0      		ldi r24,lo8(.LC0)
+ 137 000a 90E0      		ldi r25,hi8(.LC0)
+ 138 000c 0E94 0000 		call LCD_puts
+ 139               	.L2:
+  20:main.c        ****     
+  21:main.c        ****     // main should never, EVER exit
+  22:main.c        ****     for(;;)
+  23:main.c        ****     {
+  24:main.c        ****         // _delay_ms does a busy loop for the given time
+  25:main.c        ****         //_delay_ms(100);
+  26:main.c        ****         
+  27:main.c        ****         // we don't want to do anything, so just do a no-op
+  28:main.c        ****         asm volatile("nop"::); 
+ 141               	.LM4:
+ 142               	/* #APP */
+ 143               	 ;  28 "main.c" 1
+ 144 0010 0000      		nop
+ 145               	 ;  0 "" 2
+ 146               	/* #NOAPP */
+ 147 0012 00C0      		rjmp .L2
+ 149               	.Lscope1:
+ 151               		.stabd	78,0,0
+ 152               		.text
+ 154               	.Letext0:
+ 155               		.ident	"GCC: (GNU) 4.8.2"
+ 156               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 main.c
+     /tmp/ccCzZ15G.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/ccCzZ15G.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/ccCzZ15G.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/ccCzZ15G.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/ccCzZ15G.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/ccCzZ15G.s:114    .text.startup:0000000000000000 main
+
+UNDEFINED SYMBOLS
+LCD_Init
+LCD_puts
+__do_copy_data

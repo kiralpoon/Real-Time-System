@@ -1,0 +1,494 @@
+   1               		.file	"lcd_functions.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   9               		.text
+  10               	.Ltext0:
+ 110               	.global	LCD_puts_f
+ 112               	LCD_puts_f:
+ 113               		.stabd	46,0,0
+   1:lcd_functions.c **** //
+   2:lcd_functions.c **** //  Author(s)...: ATMEL Norway
+   3:lcd_functions.c **** //
+   4:lcd_functions.c **** //  Target(s)...: ATmega169
+   5:lcd_functions.c **** //
+   6:lcd_functions.c **** //  mt - used for debugging only - may not work
+   7:lcd_functions.c **** 
+   8:lcd_functions.c **** //  Include files
+   9:lcd_functions.c **** #include <avr/io.h>
+  10:lcd_functions.c **** #include <avr/pgmspace.h>
+  11:lcd_functions.c **** #include <inttypes.h>
+  12:lcd_functions.c **** #include "lcd_driver.h"
+  13:lcd_functions.c **** #include "lcd_functions.h"
+  14:lcd_functions.c **** #include "bcd.h"
+  15:lcd_functions.c **** #include "main.h"
+  16:lcd_functions.c **** 
+  17:lcd_functions.c **** #ifndef FALSE
+  18:lcd_functions.c **** #define FALSE   0
+  19:lcd_functions.c **** #endif
+  20:lcd_functions.c **** 
+  21:lcd_functions.c **** #ifndef TRUE
+  22:lcd_functions.c **** #define TRUE    (!FALSE)
+  23:lcd_functions.c **** #endif
+  24:lcd_functions.c **** 
+  25:lcd_functions.c **** char CONTRAST = LCD_INITIAL_CONTRAST;
+  26:lcd_functions.c **** 
+  27:lcd_functions.c **** // Start-up delay before scrolling a string over the LCD. "LCD_driver.c"
+  28:lcd_functions.c **** extern char gLCD_Start_Scroll_Timer;
+  29:lcd_functions.c **** 
+  30:lcd_functions.c **** /****************************************************************************
+  31:lcd_functions.c **** *
+  32:lcd_functions.c **** *	Function name : LCD_puts_f
+  33:lcd_functions.c **** *
+  34:lcd_functions.c **** *	Returns :		None
+  35:lcd_functions.c **** *
+  36:lcd_functions.c **** *	Parameters :	pFlashStr: Pointer to the string in flash
+  37:lcd_functions.c **** *                   scrollmode: Not in use
+  38:lcd_functions.c **** *
+  39:lcd_functions.c **** *	Purpose :		Writes a string stored in flash to the LCD
+  40:lcd_functions.c **** *
+  41:lcd_functions.c **** *****************************************************************************/
+  42:lcd_functions.c **** 
+  43:lcd_functions.c **** // mt void LCD_puts_f(char __flash *pFlashStr, char scrollmode)
+  44:lcd_functions.c **** void LCD_puts_f(const char *pFlashStr, char scrollmode)
+  45:lcd_functions.c **** {
+ 115               	.LM0:
+ 116               	.LFBB1:
+ 117               	/* prologue: function */
+ 118               	/* frame size = 0 */
+ 119               	/* stack size = 0 */
+ 120               	.L__stack_usage = 0
+ 121               	.L4:
+  46:lcd_functions.c ****     // char i;
+  47:lcd_functions.c **** 	uint8_t i;
+  48:lcd_functions.c **** 
+  49:lcd_functions.c ****     while (gLCD_Update_Required);      // Wait for access to buffer
+ 123               	.LM1:
+ 124 0000 2091 0000 		lds r18,gLCD_Update_Required
+ 125 0004 2111      		cpse r18,__zero_reg__
+ 126 0006 00C0      		rjmp .L4
+ 127 0008 A0E0      		ldi r26,lo8(gTextBuffer)
+ 128 000a B0E0      		ldi r27,hi8(gTextBuffer)
+ 130               	.LM2:
+ 131 000c 20E0      		ldi r18,0
+ 132 000e 30E0      		ldi r19,0
+ 133               	.L3:
+ 134 0010 422F      		mov r20,r18
+ 135 0012 FC01      		movw r30,r24
+ 136 0014 E20F      		add r30,r18
+ 137 0016 F31F      		adc r31,r19
+ 138               	.LBB2:
+  50:lcd_functions.c **** 
+  51:lcd_functions.c ****     // mt: for (i = 0; pFlashStr[i] && i < TEXTBUFFER_SIZE; i++)
+  52:lcd_functions.c **** 	for (i = 0; pgm_read_byte(&pFlashStr[i]) && i < TEXTBUFFER_SIZE; i++)
+ 140               	.LM3:
+ 141               	/* #APP */
+ 142               	 ;  52 "lcd_functions.c" 1
+ 143 0018 E491      		lpm r30, Z
+ 144               		
+ 145               	 ;  0 "" 2
+ 146               	/* #NOAPP */
+ 147               	.LBE2:
+ 148 001a EE23      		tst r30
+ 149 001c 01F0      		breq .L5
+ 150 001e 2F5F      		subi r18,-1
+ 151 0020 3F4F      		sbci r19,-1
+ 153               	.LM4:
+ 154 0022 2A31      		cpi r18,26
+ 155 0024 3105      		cpc r19,__zero_reg__
+ 156 0026 01F0      		breq .L13
+  53:lcd_functions.c ****     {
+  54:lcd_functions.c ****         // mt: gTextBuffer[i] = pFlashStr[i];
+  55:lcd_functions.c **** 		gTextBuffer[i] = pgm_read_byte(&pFlashStr[i]);
+ 158               	.LM5:
+ 159 0028 ED93      		st X+,r30
+ 160 002a 00C0      		rjmp .L3
+ 161               	.L13:
+ 162 002c 49E1      		ldi r20,lo8(25)
+ 163               	.L5:
+  56:lcd_functions.c ****     }
+  57:lcd_functions.c **** 
+  58:lcd_functions.c ****     gTextBuffer[i] = '\0';
+ 165               	.LM6:
+ 166 002e E42F      		mov r30,r20
+ 167 0030 F0E0      		ldi r31,0
+ 168 0032 E050      		subi r30,lo8(-(gTextBuffer))
+ 169 0034 F040      		sbci r31,hi8(-(gTextBuffer))
+ 170 0036 1082      		st Z,__zero_reg__
+  59:lcd_functions.c **** 
+  60:lcd_functions.c ****     if (i > 6)
+ 172               	.LM7:
+ 173 0038 4730      		cpi r20,lo8(7)
+ 174 003a 00F0      		brlo .L7
+  61:lcd_functions.c ****     {
+  62:lcd_functions.c ****         gScrollMode = 1;        // Scroll if text is longer than display size
+ 176               	.LM8:
+ 177 003c 81E0      		ldi r24,lo8(1)
+ 178 003e 8093 0000 		sts gScrollMode,r24
+  63:lcd_functions.c ****         gScroll = 0;
+ 180               	.LM9:
+ 181 0042 1092 0000 		sts gScroll,__zero_reg__
+  64:lcd_functions.c ****         gLCD_Start_Scroll_Timer = 3;    //Start-up delay before scrolling the text
+ 183               	.LM10:
+ 184 0046 83E0      		ldi r24,lo8(3)
+ 185 0048 8093 0000 		sts gLCD_Start_Scroll_Timer,r24
+ 186 004c 00C0      		rjmp .L8
+ 187               	.L7:
+  65:lcd_functions.c ****     }
+  66:lcd_functions.c ****     else
+  67:lcd_functions.c ****     {
+  68:lcd_functions.c ****         gScrollMode = 0;        
+ 189               	.LM11:
+ 190 004e 1092 0000 		sts gScrollMode,__zero_reg__
+  69:lcd_functions.c ****         gScroll = 0;
+ 192               	.LM12:
+ 193 0052 1092 0000 		sts gScroll,__zero_reg__
+ 194               	.L8:
+  70:lcd_functions.c ****     }
+  71:lcd_functions.c **** 
+  72:lcd_functions.c ****     gLCD_Update_Required = 1;
+ 196               	.LM13:
+ 197 0056 81E0      		ldi r24,lo8(1)
+ 198 0058 8093 0000 		sts gLCD_Update_Required,r24
+ 199 005c 0895      		ret
+ 204               	.Lscope1:
+ 206               		.stabd	78,0,0
+ 209               	.global	LCD_puts
+ 211               	LCD_puts:
+ 212               		.stabd	46,0,0
+  73:lcd_functions.c **** }
+  74:lcd_functions.c **** 
+  75:lcd_functions.c **** 
+  76:lcd_functions.c **** /****************************************************************************
+  77:lcd_functions.c **** *
+  78:lcd_functions.c **** *	Function name : LCD_puts
+  79:lcd_functions.c **** *
+  80:lcd_functions.c **** *	Returns :		None
+  81:lcd_functions.c **** *
+  82:lcd_functions.c **** *	Parameters :	pStr: Pointer to the string
+  83:lcd_functions.c **** *                   scrollmode: Not in use
+  84:lcd_functions.c **** *
+  85:lcd_functions.c **** *	Purpose :		Writes a string to the LCD
+  86:lcd_functions.c **** *
+  87:lcd_functions.c **** *****************************************************************************/
+  88:lcd_functions.c **** void LCD_puts(char *pStr, char scrollmode)
+  89:lcd_functions.c **** {
+ 214               	.LM14:
+ 215               	.LFBB2:
+ 216               	/* prologue: function */
+ 217               	/* frame size = 0 */
+ 218               	/* stack size = 0 */
+ 219               	.L__stack_usage = 0
+ 220               	.L17:
+  90:lcd_functions.c **** 	uint8_t i; // char i;
+  91:lcd_functions.c **** 	
+  92:lcd_functions.c **** 	while (gLCD_Update_Required);      // Wait for access to buffer
+ 222               	.LM15:
+ 223 005e 2091 0000 		lds r18,gLCD_Update_Required
+ 224 0062 2111      		cpse r18,__zero_reg__
+ 225 0064 00C0      		rjmp .L17
+ 226 0066 FC01      		movw r30,r24
+ 227 0068 A0E0      		ldi r26,lo8(gTextBuffer)
+ 228 006a B0E0      		ldi r27,hi8(gTextBuffer)
+ 230               	.LM16:
+ 231 006c 80E0      		ldi r24,0
+ 232               	.L16:
+  93:lcd_functions.c **** 
+  94:lcd_functions.c ****     for (i = 0; pStr[i] && i < TEXTBUFFER_SIZE; i++)
+ 234               	.LM17:
+ 235 006e 9191      		ld r25,Z+
+ 236 0070 9923      		tst r25
+ 237 0072 01F0      		breq .L18
+ 239               	.LM18:
+ 240 0074 8931      		cpi r24,lo8(25)
+ 241 0076 01F0      		breq .L18
+  95:lcd_functions.c ****     {
+  96:lcd_functions.c ****         gTextBuffer[i] = pStr[i];
+ 243               	.LM19:
+ 244 0078 9D93      		st X+,r25
+  94:lcd_functions.c ****     for (i = 0; pStr[i] && i < TEXTBUFFER_SIZE; i++)
+ 246               	.LM20:
+ 247 007a 8F5F      		subi r24,lo8(-(1))
+ 248 007c 00C0      		rjmp .L16
+ 249               	.L18:
+  97:lcd_functions.c ****     }
+  98:lcd_functions.c **** 
+  99:lcd_functions.c ****     gTextBuffer[i] = '\0';
+ 251               	.LM21:
+ 252 007e E82F      		mov r30,r24
+ 253 0080 F0E0      		ldi r31,0
+ 254 0082 E050      		subi r30,lo8(-(gTextBuffer))
+ 255 0084 F040      		sbci r31,hi8(-(gTextBuffer))
+ 256 0086 1082      		st Z,__zero_reg__
+ 100:lcd_functions.c **** 
+ 101:lcd_functions.c ****     if (i > 6)
+ 258               	.LM22:
+ 259 0088 8730      		cpi r24,lo8(7)
+ 260 008a 00F0      		brlo .L20
+ 102:lcd_functions.c ****     {
+ 103:lcd_functions.c ****         gScrollMode = 1;        // Scroll if text is longer than display size
+ 262               	.LM23:
+ 263 008c 81E0      		ldi r24,lo8(1)
+ 264 008e 8093 0000 		sts gScrollMode,r24
+ 104:lcd_functions.c ****         gScroll = 0;
+ 266               	.LM24:
+ 267 0092 1092 0000 		sts gScroll,__zero_reg__
+ 105:lcd_functions.c ****         gLCD_Start_Scroll_Timer = 3;    //Start-up delay before scrolling the text
+ 269               	.LM25:
+ 270 0096 83E0      		ldi r24,lo8(3)
+ 271 0098 8093 0000 		sts gLCD_Start_Scroll_Timer,r24
+ 272 009c 00C0      		rjmp .L21
+ 273               	.L20:
+ 106:lcd_functions.c ****     }
+ 107:lcd_functions.c ****     else
+ 108:lcd_functions.c ****     {
+ 109:lcd_functions.c ****         gScrollMode = 0;        
+ 275               	.LM26:
+ 276 009e 1092 0000 		sts gScrollMode,__zero_reg__
+ 110:lcd_functions.c ****         gScroll = 0;
+ 278               	.LM27:
+ 279 00a2 1092 0000 		sts gScroll,__zero_reg__
+ 280               	.L21:
+ 111:lcd_functions.c ****     }
+ 112:lcd_functions.c **** 
+ 113:lcd_functions.c ****     gLCD_Update_Required = 1;
+ 282               	.LM28:
+ 283 00a6 81E0      		ldi r24,lo8(1)
+ 284 00a8 8093 0000 		sts gLCD_Update_Required,r24
+ 285 00ac 0895      		ret
+ 290               	.Lscope2:
+ 292               		.stabd	78,0,0
+ 296               	.global	LCD_putc
+ 298               	LCD_putc:
+ 299               		.stabd	46,0,0
+ 114:lcd_functions.c **** }
+ 115:lcd_functions.c **** 
+ 116:lcd_functions.c **** 
+ 117:lcd_functions.c **** /****************************************************************************
+ 118:lcd_functions.c **** *
+ 119:lcd_functions.c **** *	Function name : LCD_putc
+ 120:lcd_functions.c **** *
+ 121:lcd_functions.c **** *	Returns :		None
+ 122:lcd_functions.c **** *
+ 123:lcd_functions.c **** *	Parameters :	digit: Which digit to write on the LCD
+ 124:lcd_functions.c **** *                   character: Character to write
+ 125:lcd_functions.c **** *
+ 126:lcd_functions.c **** *	Purpose :		Writes a character to the LCD
+ 127:lcd_functions.c **** *
+ 128:lcd_functions.c **** *****************************************************************************/
+ 129:lcd_functions.c **** // mt void LCD_putc(char digit, char character)
+ 130:lcd_functions.c **** // mt void LCD_putc(char digit, char character)
+ 131:lcd_functions.c **** void LCD_putc(uint8_t digit, char character)
+ 132:lcd_functions.c **** {
+ 301               	.LM29:
+ 302               	.LFBB3:
+ 303               	/* prologue: function */
+ 304               	/* frame size = 0 */
+ 305               	/* stack size = 0 */
+ 306               	.L__stack_usage = 0
+ 133:lcd_functions.c ****     if (digit < TEXTBUFFER_SIZE)
+ 308               	.LM30:
+ 309 00ae 8931      		cpi r24,lo8(25)
+ 310 00b0 00F4      		brsh .L25
+ 134:lcd_functions.c ****         gTextBuffer[digit] = character;
+ 312               	.LM31:
+ 313 00b2 E82F      		mov r30,r24
+ 314 00b4 F0E0      		ldi r31,0
+ 315 00b6 E050      		subi r30,lo8(-(gTextBuffer))
+ 316 00b8 F040      		sbci r31,hi8(-(gTextBuffer))
+ 317 00ba 6083      		st Z,r22
+ 318               	.L25:
+ 319 00bc 0895      		ret
+ 321               	.Lscope3:
+ 323               		.stabd	78,0,0
+ 325               	.global	LCD_Clear
+ 327               	LCD_Clear:
+ 328               		.stabd	46,0,0
+ 135:lcd_functions.c **** }
+ 136:lcd_functions.c **** 
+ 137:lcd_functions.c **** 
+ 138:lcd_functions.c **** /****************************************************************************
+ 139:lcd_functions.c **** *
+ 140:lcd_functions.c **** *	Function name : LCD_Clear
+ 141:lcd_functions.c **** *
+ 142:lcd_functions.c **** *	Returns :		None
+ 143:lcd_functions.c **** *
+ 144:lcd_functions.c **** *	Parameters :	None
+ 145:lcd_functions.c **** *
+ 146:lcd_functions.c **** *	Purpose :		Clear the LCD
+ 147:lcd_functions.c **** *
+ 148:lcd_functions.c **** *****************************************************************************/
+ 149:lcd_functions.c **** void LCD_Clear(void)
+ 150:lcd_functions.c **** {
+ 330               	.LM32:
+ 331               	.LFBB4:
+ 332               	/* prologue: function */
+ 333               	/* frame size = 0 */
+ 334               	/* stack size = 0 */
+ 335               	.L__stack_usage = 0
+ 336 00be E0E0      		ldi r30,lo8(gTextBuffer)
+ 337 00c0 F0E0      		ldi r31,hi8(gTextBuffer)
+ 151:lcd_functions.c ****     uint8_t i; // char i;
+ 152:lcd_functions.c **** 	   
+ 153:lcd_functions.c ****     for (i=0; i<TEXTBUFFER_SIZE; i++)
+ 154:lcd_functions.c ****         gTextBuffer[i] = ' ';
+ 339               	.LM33:
+ 340 00c2 80E2      		ldi r24,lo8(32)
+ 341               	.L29:
+ 343               	.LM34:
+ 344 00c4 8193      		st Z+,r24
+ 153:lcd_functions.c ****     for (i=0; i<TEXTBUFFER_SIZE; i++)
+ 346               	.LM35:
+ 347 00c6 90E0      		ldi r25,hi8(gTextBuffer+25)
+ 348 00c8 E030      		cpi r30,lo8(gTextBuffer+25)
+ 349 00ca F907      		cpc r31,r25
+ 350 00cc 01F4      		brne .L29
+ 351               	/* epilogue start */
+ 155:lcd_functions.c **** }
+ 353               	.LM36:
+ 354 00ce 0895      		ret
+ 356               	.Lscope4:
+ 358               		.stabd	78,0,0
+ 361               	.global	LCD_Colon
+ 363               	LCD_Colon:
+ 364               		.stabd	46,0,0
+ 156:lcd_functions.c **** 
+ 157:lcd_functions.c **** 
+ 158:lcd_functions.c **** /****************************************************************************
+ 159:lcd_functions.c **** *
+ 160:lcd_functions.c **** *	Function name : LCD_Colon
+ 161:lcd_functions.c **** *
+ 162:lcd_functions.c **** *	Returns :		None
+ 163:lcd_functions.c **** *
+ 164:lcd_functions.c **** *	Parameters :	show: Enables the colon if TRUE, disable if FALSE
+ 165:lcd_functions.c **** *
+ 166:lcd_functions.c **** *	Purpose :		Enable/disable colons on the LCD
+ 167:lcd_functions.c **** *
+ 168:lcd_functions.c **** *****************************************************************************/
+ 169:lcd_functions.c **** void LCD_Colon(char show)
+ 170:lcd_functions.c **** {
+ 366               	.LM37:
+ 367               	.LFBB5:
+ 368               	/* prologue: function */
+ 369               	/* frame size = 0 */
+ 370               	/* stack size = 0 */
+ 371               	.L__stack_usage = 0
+ 171:lcd_functions.c ****     gColon = show;
+ 373               	.LM38:
+ 374 00d0 8093 0000 		sts gColon,r24
+ 375 00d4 0895      		ret
+ 377               	.Lscope5:
+ 379               		.stabd	78,0,0
+ 383               	.global	LCD_UpdateRequired
+ 385               	LCD_UpdateRequired:
+ 386               		.stabd	46,0,0
+ 172:lcd_functions.c **** }
+ 173:lcd_functions.c **** 
+ 174:lcd_functions.c **** 
+ 175:lcd_functions.c **** /****************************************************************************
+ 176:lcd_functions.c **** *
+ 177:lcd_functions.c **** *	Function name : LCD_UpdateRequired
+ 178:lcd_functions.c **** *
+ 179:lcd_functions.c **** *	Returns :		None
+ 180:lcd_functions.c **** *
+ 181:lcd_functions.c **** *	Parameters :	update: TRUE/FALSE
+ 182:lcd_functions.c **** *                   scrollmode: not in use
+ 183:lcd_functions.c **** *
+ 184:lcd_functions.c **** *	Purpose :		Tells the LCD that there is new data to be presented
+ 185:lcd_functions.c **** *
+ 186:lcd_functions.c **** *****************************************************************************/
+ 187:lcd_functions.c **** void LCD_UpdateRequired(char update, char scrollmode)
+ 188:lcd_functions.c **** {
+ 388               	.LM39:
+ 389               	.LFBB6:
+ 390               	/* prologue: function */
+ 391               	/* frame size = 0 */
+ 392               	/* stack size = 0 */
+ 393               	.L__stack_usage = 0
+ 394               	.L33:
+ 189:lcd_functions.c **** 
+ 190:lcd_functions.c ****     while (gLCD_Update_Required);
+ 396               	.LM40:
+ 397 00d6 9091 0000 		lds r25,gLCD_Update_Required
+ 398 00da 9111      		cpse r25,__zero_reg__
+ 399 00dc 00C0      		rjmp .L33
+ 191:lcd_functions.c ****     
+ 192:lcd_functions.c ****     gScrollMode = scrollmode;
+ 401               	.LM41:
+ 402 00de 6093 0000 		sts gScrollMode,r22
+ 193:lcd_functions.c ****     gScroll = 0;
+ 404               	.LM42:
+ 405 00e2 1092 0000 		sts gScroll,__zero_reg__
+ 194:lcd_functions.c **** 
+ 195:lcd_functions.c ****     gLCD_Update_Required = update;
+ 407               	.LM43:
+ 408 00e6 8093 0000 		sts gLCD_Update_Required,r24
+ 409 00ea 0895      		ret
+ 411               	.Lscope6:
+ 413               		.stabd	78,0,0
+ 415               	.global	LCD_FlashReset
+ 417               	LCD_FlashReset:
+ 418               		.stabd	46,0,0
+ 196:lcd_functions.c **** }
+ 197:lcd_functions.c **** 
+ 198:lcd_functions.c **** 
+ 199:lcd_functions.c **** /****************************************************************************
+ 200:lcd_functions.c **** *
+ 201:lcd_functions.c **** *	Function name : LCD_FlashReset
+ 202:lcd_functions.c **** *
+ 203:lcd_functions.c **** *	Returns :		None
+ 204:lcd_functions.c **** *
+ 205:lcd_functions.c **** *	Parameters :	None
+ 206:lcd_functions.c **** *
+ 207:lcd_functions.c **** *	Purpose :		This function resets the blinking cycle of a flashing digit
+ 208:lcd_functions.c **** *
+ 209:lcd_functions.c **** *****************************************************************************/
+ 210:lcd_functions.c **** void LCD_FlashReset(void)
+ 211:lcd_functions.c **** {
+ 420               	.LM44:
+ 421               	.LFBB7:
+ 422               	/* prologue: function */
+ 423               	/* frame size = 0 */
+ 424               	/* stack size = 0 */
+ 425               	.L__stack_usage = 0
+ 212:lcd_functions.c ****     gFlashTimer = 0;
+ 427               	.LM45:
+ 428 00ec 1092 0000 		sts gFlashTimer,__zero_reg__
+ 429 00f0 0895      		ret
+ 431               	.Lscope7:
+ 433               		.stabd	78,0,0
+ 434               	.global	CONTRAST
+ 435               		.data
+ 438               	CONTRAST:
+ 439 0000 0F        		.byte	15
+ 441               		.text
+ 443               	.Letext0:
+ 444               		.ident	"GCC: (GNU) 4.8.2"
+ 445               	.global __do_copy_data
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 lcd_functions.c
+     /tmp/cc4IQqwC.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cc4IQqwC.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cc4IQqwC.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cc4IQqwC.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cc4IQqwC.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cc4IQqwC.s:112    .text:0000000000000000 LCD_puts_f
+     /tmp/cc4IQqwC.s:211    .text:000000000000005e LCD_puts
+     /tmp/cc4IQqwC.s:298    .text:00000000000000ae LCD_putc
+     /tmp/cc4IQqwC.s:327    .text:00000000000000be LCD_Clear
+     /tmp/cc4IQqwC.s:363    .text:00000000000000d0 LCD_Colon
+     /tmp/cc4IQqwC.s:385    .text:00000000000000d6 LCD_UpdateRequired
+     /tmp/cc4IQqwC.s:417    .text:00000000000000ec LCD_FlashReset
+     /tmp/cc4IQqwC.s:438    .data:0000000000000000 CONTRAST
+
+UNDEFINED SYMBOLS
+gLCD_Update_Required
+gTextBuffer
+gScrollMode
+gScroll
+gLCD_Start_Scroll_Timer
+gColon
+gFlashTimer
+__do_copy_data
