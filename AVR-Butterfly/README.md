@@ -3,13 +3,17 @@
 **make sure your Linux machine install the library we need for this project**
 
 '''bash
+
 apt-get install avr-libc gcc-avr gdb-avr avrdude
+
 '''
 
 **to check is it flash ready**
 
 '''
+
 avrdude -p m169 -c butterfly -P /dev/ttyUSB0 -v
+
 '''
 
 **flashing Helloworld to the board**
