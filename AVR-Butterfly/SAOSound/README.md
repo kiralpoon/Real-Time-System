@@ -1,4 +1,4 @@
-#Instruction of run SAOSound
+#Instruction to run SAOSound
 
 **Make sure your machine install the library we need for this project**
 
