@@ -8,5 +8,5 @@
 
 **To Play**
 
-	* move the joystick button up
+ * move the joystick button up
 	
