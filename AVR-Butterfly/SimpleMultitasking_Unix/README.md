@@ -5,8 +5,4 @@
 	bash
 	gcc main.c -o main -std=c99
 
-
-**To Play**
-
- * 
 	
